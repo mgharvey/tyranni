@@ -11,5 +11,7 @@ Included are:
 - species trees
 - R code
 
+Additional code developed for this project and used in sequence assembly is available at <a href="https://github.com/GrahamDB/uce-pipeline-scripts" target="_blank">Graham Derryberry's Github</a>.
+
 References:
 
