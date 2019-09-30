@@ -1,0 +1,62 @@
+
+observed_phylogeny <- readTrees("/Users/derryberry/Documents/tyranni_trees/timetrees/T400F_AOS_HowardMoore.tre")[1]
+taxa <- observed_phylogeny.taxa() 
+root <- observed_phylogeny.rootAge() 
+tree_length <- observed_phylogeny.treeLength() 
+mvi = 0
+mni = 0
+NUM_RATE_CATEGORIES = 20
+EXPECTED_NUM_EVENTS = 100
+NUM_TOTAL_SPECIES = 1286
+H = 0.587405
+
+speciation_prior_mean <- ln( ln(NUM_TOTAL_SPECIES/2.0) / root )
+speciation_mean ~ dnLognormal(mean=speciation_prior_mean, sd=H)
+moves[mvi++] = mvScale(speciation_mean,lambda=1,tune=true,weight=5)
+speciation_sd <- H*2
+speciation := fnDiscretizeDistribution( dnLognormal(ln(speciation_mean), speciation_sd), NUM_RATE_CATEGORIES )
+extinction_prior_mean <- ln( ln(NUM_TOTAL_SPECIES/2.0) / root )
+extinction_mean ~ dnLognormal(mean=extinction_prior_mean,sd=H*2)
+moves[mvi++] = mvScale(extinction_mean,lambda=1.0,tune=true,weight=3.0)
+extinction := rep( extinction_mean, NUM_RATE_CATEGORIES )
+event_rate ~ dnLognormal( ln( EXPECTED_NUM_EVENTS/tree_length ), H)
+moves[mvi++] = mvScale(event_rate,lambda=1,tune=true,weight=5)
+root_category ~ dnUniformNatural(1,NUM_RATE_CATEGORIES)
+moves[mvi++] = mvRandomIntegerWalk(root_category,weight=1)
+rho <- observed_phylogeny.ntips() / NUM_TOTAL_SPECIES
+
+timetree ~ dnHBDP(lambda=speciation, mu=extinction, rootAge=root, rho=rho, rootState=root_category, delta=event_rate, taxa=taxa )
+timetree.clamp(observed_phylogeny)
+
+moves[mvi++] = mvBirthDeathEvent(timetree,weight=2)
+moves[mvi++] = mvEventTimeBeta(timetree,weight=2)
+moves[mvi++] = mvDiscreteEventCategoryRandomWalk(timetree,weight=2)
+num_events := timetree.numberEvents()
+avg_lambda := timetree.averageSpeciationRate()
+avg_mu     := timetree.averageExtinctionRate()
+avg_net    := avg_lambda - avg_mu
+avg_rel    := avg_mu / avg_lambda
+total_num_events := sum( num_events )
+
+# Model
+
+mymodel = model(speciation)
+
+# Running the MCMC
+
+monitors[++mni] = mnModel(filename="/Users/derryberry/Documents/revBayes/vlong/discrete_100prior_AOSHM_vlong.log",printgen=500, separator = TAB)
+monitors[++mni] = mnExtNewick(filename="/Users/derryberry/Documents/revBayes/vlong/discrete_100prior_AOSHM_vlong.trees", 
+                   isNodeParameter=FALSE, printgen=500, separator = TAB, tree=timetree, avg_lambda, avg_mu, avg_net, avg_rel)
+monitors[++mni] = mnScreen(printgen=500, event_rate, speciation_mean, root_category, total_num_events)
+
+mymcmc = mcmc(mymodel, monitors, moves, nruns=2, combine="mixed")
+mymcmc.burnin(generations=100000,tuning=2000)
+
+mymcmc.run(generations=500000)
+
+# Visualize results
+
+treetrace = readTreeTrace("/Users/derryberry/Documents/revBayes/vlong/discrete_100prior_AOSHM_vlong.trees", treetype="clock")
+
+map_tree = mapTree(treetrace,"/Users/derryberry/Documents/revBayes/vlong/discrete_100prior_AOSHM_MAP_vlong.tree")
+

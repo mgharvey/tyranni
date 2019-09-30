@@ -1,0 +1,7 @@
+
+# Visualize results
+
+treetrace = readTreeTrace("/Users/michaelharvey/Documents/research/Tyranni/v2/div_analyses/revBayes/vlong/discrete_100prior_AOSHM_vlong.trees", treetype="clock")
+
+map_tree = mapTree(treetrace,"/Users/michaelharvey/Documents/research/Tyranni/v2/div_analyses/revBayes/vlong/discrete_100prior_AOSHM_MAP_vlong.tree")
+

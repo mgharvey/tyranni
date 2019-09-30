@@ -1,0 +1,74 @@
+
+observed_phylogeny <- readTrees("/Users/derryberry/Documents/tyranni_trees/timetrees/T400F_AOS_HowardMoore.tre")[1]
+taxa <- observed_phylogeny.taxa() #  Error:	No function named 'taxa'
+root <- observed_phylogeny.rootAge() # Error:	No function named 'rootAge'
+tree_length <- observed_phylogeny.treeLength() # Error:	No function named 'treeLength'
+mvi = 0
+mni = 0
+EXPECTED_NUM_EVENTS = 100
+NUM_TOTAL_SPECIES = 1286
+H = 0.587405
+
+speciation_prior_mean <- ln( ln(NUM_TOTAL_SPECIES/2.0) / root )
+extinction_prior_mean <- ln( ln(NUM_TOTAL_SPECIES/2.0) / root )
+speciation_sd <- 2*H
+extinction_sd <- H*2
+speciation_rate_prior = dnLognormal(speciation_prior_mean,speciation_sd)
+extinction_rate_prior = dnLognormal(extinction_prior_mean,extinction_sd)
+speciation_root ~ dnLognormal(speciation_prior_mean,speciation_sd)
+extinction_root ~ dnLognormal(extinction_prior_mean,extinction_sd)
+moves[mvi++] = mvScale(speciation_root,lambda=1,tune=true,weight=5)
+moves[mvi++] = mvScale(extinction_root,lambda=1,tune=true,weight=5)
+shift_rate ~ dnLognormal( ln( EXPECTED_NUM_EVENTS/tree_length ), H)
+moves[mvi++] = mvScale(shift_rate,lambda=1,tune=true,weight=5)
+rho <- observed_phylogeny.ntips() / NUM_TOTAL_SPECIES
+
+timetree ~ dnCBDSP(rootLambda=speciation_root,
+                   rootMu=extinction_root,
+                   lambda=speciation_rate_prior, 
+                   mu=extinction_rate_prior, 
+                   delta=shift_rate, 
+                   rootAge=root, 
+                   rho=rho, 
+                   condition="time",
+                   taxa=taxa )
+timetree.clamp(observed_phylogeny)
+
+moves[mvi++] = mvBirthDeathEventContinuous(timetree, weight=10)
+moves[mvi++] = mvContinuousEventScale(timetree, lambda=1.0, weight=5)
+moves[mvi++] = mvEventTimeBeta(timetree, delta=0.01, offset=1.0, weight=5,tune=TRUE)
+moves[mvi++] = mvEventTimeSlide(timetree, delta=timetree.treeLength()/10.0, weight=5,tune=false)
+num_events := timetree.numberEvents()
+avg_lambda := timetree.averageSpeciationRate()
+avg_mu     := timetree.averageExtinctionRate()
+avg_net    := avg_lambda - avg_mu
+avg_rel    := avg_mu / avg_lambda
+prob_incr_lambda := timetree.probabilitySpeciationRateIncrease()
+prob_decr_lambda := timetree.probabilitySpeciationRateDecrease()
+prob_incr_mu     := timetree.probabilityExtinctionRateIncrease()
+prob_decr_mu     := timetree.probabilityExtinctionRateDecrease()
+total_num_events := sum( num_events )
+
+# Model
+
+mymodel = model(timetree)
+
+# MCMC
+
+monitors[++mni] = mnModel(filename="/Users/derryberry/Documents/revBayes/vlong/cond_100prior_AOSHM_vlong.log",printgen=500, separator = TAB)
+monitors[++mni] = mnExtNewick(filename="/Users/derryberry/Documents/revBayes/vlong/cond_100prior_AOSHM_vlong.trees", 
+                   isNodeParameter=FALSE, printgen=500, separator = TAB, tree=timetree, avg_lambda, avg_mu, avg_net, 
+                   avg_rel, prob_incr_lambda, prob_decr_lambda, prob_incr_mu, prob_decr_mu)
+monitors[++mni] = mnScreen(printgen=500, shift_rate, speciation_root, extinction_root, total_num_events)
+
+mymcmc = mcmc(mymodel, monitors, moves, nruns=2, combine="mixed")
+mymcmc.burnin(generations=100000,tuning=2000)
+
+mymcmc.run(generations=500000) 
+
+# Visualize
+
+treetrace = readTreeTrace("/Users/derryberry/Documents/revBayes/vlong/cond_100prior_AOSHM_vlong.trees", treetype="clock")
+
+map_tree = mapTree(treetrace,"/Users/derryberry/Documents/revBayes/vlong/cond_100prior_AOSHM_MAP_vlong.tree")
+
