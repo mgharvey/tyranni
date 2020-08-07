@@ -2,15 +2,29 @@
 
 Included in this data package are scripts and files to replicate analyses in:
 
-Harvey MG, Bravo GA, Claramunt S, Cuervo AM, Derryberry GE, Battilana J, Seeholzer GF, Shearer McKay J, Faircloth BC, Edwards SV, Pérez-Emán J, Moyle RG, Sheldon FH, Aleixo A, Smith BT, Chesser RT, Silveira LF, Cracraft J, Brumfield RT, Derryberry EP. In review. The evolution of a tropical biodiversity hotspot.
+The evolution of a tropical biodiversity hotspot.
+Harvey MG, Bravo GA, Claramunt S, Cuervo AM, Derryberry GE, Battilana J, Seeholzer GF, Shearer McKay J, O'Meara BC, Faircloth BC, Edwards SV, Pérez-Emán J, Moyle RG, Sheldon FH, Aleixo A, Smith BT, Chesser RT, Silveira LF, Cracraft J, Brumfield RT, Derryberry EP. 
 
 Included are:
 
-- data
-    - multi-sequence alignments for all loci
-    - gene trees 
-    - species trees (raw and time-calibrated)
-    - assorted other data (climatic variables, etc.)
-- code for sequence assembly (to supplement <a href="https://phyluce.readthedocs.io/en/latest/index.html" target="_blank">phyluce</a>)
-- additional code used during the tree estimation process
-- code for diversity analyses
+- **laboratory methods**
+protocol for toe pad whole DNA extraction
+
+- **sequence assembly**
+new code for sequence assembly/filtering (to supplement <a href="https://phyluce.readthedocs.io/en/latest/index.html" target="_blank">phyluce</a>)
+
+- **alignments**
+alignments for the heavily-filtered (HGAPF) and minimally filtered (T400F) datasets 
+
+- **gene trees**
+processed gene trees for HGAPF and T400F datasets (nodes with SH-aLRT support <80 collapsed)
+
+- **species trees** 
+trees corresponding to all classifications examined, for both HGAPF and T400F datasets (includes raw trees and time-calibrated trees)
+
+- **other data**
+processed range data and climatic data for each species
+
+- **diversification analyses**
+example code used to conduct key analyses of diversification and causes of diversification rate variation
+ 

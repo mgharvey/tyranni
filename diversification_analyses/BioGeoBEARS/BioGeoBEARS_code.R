@@ -1,4 +1,4 @@
-setwd('/Users/michaelharvey/Documents/research/Tyranni/v2/div_analyses/biogeobears')
+setwd("tyranni/diversification_analyses/BioGeoBEARS")
 getwd()
 
 library(optimx)
@@ -53,8 +53,8 @@ calc_independent_likelihoods_on_each_branch = compiler::cmpfun(calc_independent_
 #write.tree(tree.trimmed, "DEC_input.tre")
 #write.table(cbind(as.character(keep$V1), keep$V2), "DEC_input.txt")
 
-tree <- np('~/Documents/research/Tyranni/v2/div_analyses/biogeobears/DEC_input.tre')
-geog <- np("~/Documents/research/Tyranni/v2/div_analyses/biogeobears/DEC_input.txt")
+tree <- np('DEC_input.tre')
+geog <- np("DEC_input.txt")
 max_range_size <- 3
 
 #######################################################
@@ -152,7 +152,7 @@ pdf("DEC_Tyranni.pdf", width=9, height=7)
 
 tree.data <- read.tree(tree)
 pie.info <- results_object$ML_marginal_prob_each_state_at_branch_top_AT_node[(Ntip(tree.data)+1):nrow(results_object$ML_marginal_prob_each_state_at_branch_top_AT_node),]
-tipstates.data <- read.table("~/Documents/research/Tyranni/v2/div_analyses/biogeobears/DEC_input_noheader.txt", row.names=1)
+tipstates.data <- read.table("DEC_input_noheader.txt", row.names=1)
 tipstates <- tipstates.data[,1]
 names(tipstates) <- rownames(tipstates.data)
 tipstates <- tipstates[tree.data$tip.label]

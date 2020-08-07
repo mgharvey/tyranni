@@ -1,4 +1,4 @@
-setwd('/Users/michaelharvey/Documents/research/Tyranni/v2/div_analyses/PPA')
+setwd("tyranni/diversification_analyses/PhyloPath")
 getwd()
 
 library(ape)
@@ -7,13 +7,13 @@ library(phylopath)
 
 # Get data
 
-tree <- read.tree('~/Documents/research/Tyranni/v2/tree_building/examl/final_timetrees/T400F_AOS_HowardMoore.tre')
+tree <- read.tree('tyranni/species_trees/final_timetrees/T400F_AOS_HowardMoore.tre')
 tree <- force.ultrametric(tree)
 all.dframe <- read.csv('pgls_data2.csv', row.names=1)
 
 # Remove Old World and/or Nearctic species
 
-region.data <- read.table("~/Documents/research/Tyranni/v2/div_analyses/range_maps/Range_data_AOSHM_Olson_broad.txt")
+region.data <- read.table("tyranni/other_data/Range_data_AOSHM_Olson_broad.txt")
 areas <- cbind(region.data[,3:11])
 rownames(areas) <- as.character(region.data$V1)
 region.names <- c("WI", "AM", "AN", "NA", "OW", "PA", "DT", "AF", "CA")
