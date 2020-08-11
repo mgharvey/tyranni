@@ -30,3 +30,4 @@ processed range data and climatic data for each species
 - **diversification analyses**<br>
 example code used to conduct key analyses of diversification and causes of diversification rate variation
  
+Disclaimer: These alignments and trees were built from massively parallel sequence data after library preparation using sequence capture of conserved genomic regions. Some of the template DNA samples were of poor quality, particularly toe pads from museum specimens. The alignments may contain isolated errors associated with poor template quality, low-level contamination, sequencing errors, or mis-alignment and branch lengths in the trees, particularly near the tips, may be inflated due to these factors as well as unsorted ancestral polymorphism and unsampled intraspecific diversity. 
